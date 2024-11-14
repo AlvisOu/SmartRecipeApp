@@ -10,6 +10,7 @@ import SwiftUI
 struct CameraView: View {
     // State variable to trigger navigation
     @State private var navigateToIngredients = false
+    @State private var detectedFoods: [String] = []
     
     var body: some View {
         VStack {
@@ -17,11 +18,14 @@ struct CameraView: View {
                 .font(.largeTitle)
             
             Spacer()
+            
+            // Display the camera feed
+            VisionObjectRecognitionView(detectedFoods: $detectedFoods).frame(maxWidth: .infinity, maxHeight: .infinity)
 
             Button(action: {
                 navigateToIngredients = true
             }) {
-                Text("Take Picture")
+                Text("Stop scanning")
                     .font(.title)
                     .padding()
                     .background(Color.blue)

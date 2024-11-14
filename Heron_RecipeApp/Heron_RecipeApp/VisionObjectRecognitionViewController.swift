@@ -19,7 +19,7 @@ class VisionObjectRecognitionViewController: UIViewController, AVCaptureVideoDat
     var rootLayer: CALayer! = nil
     
     // String array that stores the scanned ingredients
-    private var detectedFoods: [String] = [] {
+    var detectedFoods: [String] = [] {
         didSet{
             reportFood()
         }
