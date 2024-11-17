@@ -12,7 +12,7 @@ struct Heron_RecipeAppApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                IngredientsView() 
+                HomeView() 
             }
         }
     }
