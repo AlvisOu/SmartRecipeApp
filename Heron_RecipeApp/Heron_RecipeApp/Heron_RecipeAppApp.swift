@@ -11,7 +11,9 @@ import SwiftUI
 struct Heron_RecipeAppApp: App {
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            NavigationView {
+                IngredientsView() 
+            }
         }
     }
 }
