@@ -8,26 +8,19 @@
 import SwiftUI
 
 struct RecipeListView: View {
-    @StateObject private var viewModel = RecipeViewModel()
+    @EnvironmentObject private var viewModel: RecipeViewModel
     
     var body: some View {
-        NavigationView {
-            Group {
-                if viewModel.isLoading {
-                    ProgressView("Loading recipes...")
-                } else if let error = viewModel.errorMessage {
-                    ErrorView(message: error)
-                } else {
-                    recipeList
-                }
-            }
-            .navigationTitle("Recipes")
-        }
-        .onAppear {
-            if viewModel.recipes.isEmpty {
-                viewModel.fetchRecipes(for: ["tomato,spinach"])
+        Group {
+            if viewModel.isLoading {
+                ProgressView("Loading recipes...")
+            } else if let error = viewModel.errorMessage {
+                ErrorView(message: error)
+            } else {
+                recipeList
             }
         }
+        .navigationTitle("Recipes")
     }
     
     private var recipeList: some View {
@@ -115,5 +108,6 @@ struct ErrorView: View {
 struct RecipeListView_Previews: PreviewProvider {
     static var previews: some View {
         RecipeListView()
+            .environmentObject(RecipeViewModel())
     }
 }

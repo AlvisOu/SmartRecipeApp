@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct IngredientsView: View {
-    @State private var ingredients: [String] = ["Apple", "Banana", "Milk", "Tomatoes", "Onion"]
+    @State private var ingredients: [String] = ["Avocado", "Spinach", "Onions"]
     @State private var showingAddView = false
     @State private var showingEditView = false
     
@@ -166,15 +166,19 @@ struct AddNewIngredientView: View {
 //MARK: Generate Recipe View [placeholder]
 struct GenerateRecipeView: View {
     let ingredients: [String]
+    @StateObject private var viewModel = RecipeViewModel()
     
     var body: some View {
-        VStack {
-            Text("Generate Recipe")
-        }
+        RecipeListView()
+            .onAppear {
+                let ingredientString = ingredients.joined(separator: ",")
+                viewModel.fetchRecipes(for: [ingredientString])
+            }
+            .environmentObject(viewModel)
     }
 }
 
-
 #Preview {
-        IngredientsView()
+    IngredientsView()
+        .environmentObject(RecipeViewModel())
 }
