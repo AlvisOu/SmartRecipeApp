@@ -51,37 +51,45 @@ struct YouTubePlayerView: UIViewRepresentable {
 // MARK: - ContentView
 struct ContentView: View {
     let Recipe = sampleRecipe
-    
     var body: some View {
         NavigationView {
-            VStack(alignment: .leading, spacing: 20) {
-                Text(Recipe.title)
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .padding(.bottom, 5)
-                
-                AsyncImage(url: Recipe.image) { image in
-                    image.resizable()
-                         .scaledToFill()
-                } placeholder: {
-                    ProgressView()
+            VStack {
+                HStack {
+                    Text(Recipe.title)
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .padding(.bottom, 5)
+                    // NavigationLink wrapping the Button
+                    NavigationLink(destination: RecipeInfoView(recipe: sampleRecipeInfo)) {
+                        Text("Recipe Details")
+                            .font(.title3)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.green)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            .padding(.horizontal, 12)
+                    }
                 }
-                .frame(height: 200)
-                .cornerRadius(10)
-                
+                Spacer()
+                AsyncImage(url: Recipe.image) { image in
+                                    image.resizable()
+                                } placeholder: {
+                                    ProgressView()
+                                }
+                                .frame(height: 200)
+                                .cornerRadius(10)
+                Spacer()
                 Text(Recipe.description)
                     .font(.body)
                     .padding(.bottom, 10)
-                
                 YouTubePlayerView(videoID: Recipe.videoID)
                     .frame(height: 200)
                     .cornerRadius(10)
                     .padding(.vertical)
-                
-                Spacer()
             }
-            .padding()
             .navigationTitle("Recipe Overview")
+            .padding()
         }
     }
 }
