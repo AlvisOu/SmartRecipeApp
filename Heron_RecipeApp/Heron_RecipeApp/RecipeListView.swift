@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RecipeListView: View {
     @EnvironmentObject private var viewModel: RecipeViewModel
+    @State private var sortOrder: SortOrder = .none
     
     var body: some View {
         Group {
@@ -17,19 +18,58 @@ struct RecipeListView: View {
             } else if let error = viewModel.errorMessage {
                 ErrorView(message: error)
             } else {
-                recipeList
+                VStack {
+                    recipeList
+                }
             }
         }
         .navigationTitle("Recipes")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    Button(action: { sortOrder = .none }) {
+                        Label("Default", systemImage: sortOrder == .none ? "checkmark" : "")
+                    }
+                    
+                    Button(action: { sortOrder = .highestRated }) {
+                        Label("Highest Rated", systemImage: sortOrder == .highestRated ? "checkmark" : "")
+                    }
+                    
+                    Button(action: { sortOrder = .lowestRated }) {
+                        Label("Lowest Rated", systemImage: sortOrder == .lowestRated ? "checkmark" : "")
+                    }
+                } label: {
+                    Label("Sort", systemImage: "arrow.up.arrow.down")
+                        .foregroundColor(.blue)
+                }
+            }
+        }
+    }
+    
+    private var sortedRecipes: [Recipe] {
+        switch sortOrder {
+        case .highestRated:
+            return viewModel.recipes.sorted { $0.user_ratings.score > $1.user_ratings.score }
+        case .lowestRated:
+            return viewModel.recipes.sorted { $0.user_ratings.score < $1.user_ratings.score }
+        case .none:
+            return viewModel.recipes
+        }
     }
     
     private var recipeList: some View {
-        List(viewModel.recipes) { recipe in
+        List(sortedRecipes) { recipe in
             NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
                 RecipeRowView(recipe: recipe)
             }
         }
     }
+}
+
+enum SortOrder {
+    case none
+    case highestRated
+    case lowestRated
 }
 
 struct RecipeRowView: View {
