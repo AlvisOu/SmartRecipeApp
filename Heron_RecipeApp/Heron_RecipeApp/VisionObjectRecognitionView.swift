@@ -10,13 +10,34 @@ import Foundation
 struct VisionObjectRecognitionView: UIViewControllerRepresentable {
     @Binding var detectedFoods: [String]
     
+    class Coordinator: NSObject, ObservableObject {
+        @Published var detectedFoods: [String] = [] {
+            didSet {
+                print("Coordinator detectedFoods updated: \(detectedFoods)")
+            }
+        }
+        override init() {
+            super.init()
+        }
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+    
     func makeUIViewController(context: Context) -> VisionObjectRecognitionViewController {
         let viewController = VisionObjectRecognitionViewController()
-        viewController.detectedFoods = detectedFoods
+        viewController.onFoodsDetected = { foods in
+            DispatchQueue.main.async {
+                self.detectedFoods = foods
+                print("VisionObjectRecognitionView detectedFoods updated: \(foods)")
+            }
+        }
+
         return viewController
     }
     
     func updateUIViewController(_ uiViewController: VisionObjectRecognitionViewController, context: Context) {
-        uiViewController.detectedFoods = detectedFoods
     }
+    
 }

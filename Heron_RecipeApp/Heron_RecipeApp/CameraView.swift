@@ -17,6 +17,14 @@ struct CameraView: View {
             Text("Camera View")
                 .font(.largeTitle)
             
+            Text(detectedFoods.isEmpty ? "No foods detected" : detectedFoods.joined(separator: "\n"))
+                .font(.title2)
+                .padding()
+                .foregroundColor(detectedFoods.isEmpty ? .gray : .black)
+                .multilineTextAlignment(.center)
+                .onChange(of: detectedFoods) { newValue in
+                    print("CameraView detectedFoods updated: \(newValue)")
+                }
             Spacer()
             
             // Display the camera feed
@@ -38,7 +46,7 @@ struct CameraView: View {
         .navigationTitle("Camera")
         // Navigation link tied to the state variable
         .background(
-            NavigationLink(destination: IngredientsView(), isActive: $navigateToIngredients) {
+            NavigationLink(destination: IngredientsView(ingredients: detectedFoods), isActive: $navigateToIngredients) {
                 EmptyView()
             }
         )
