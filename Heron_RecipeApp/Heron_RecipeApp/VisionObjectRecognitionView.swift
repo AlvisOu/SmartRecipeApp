@@ -10,6 +10,8 @@ import Foundation
 struct VisionObjectRecognitionView: UIViewControllerRepresentable {
     @Binding var detectedFoods: [String]
     
+    var onReset: () -> Void
+    
     class Coordinator: NSObject, ObservableObject {
         @Published var detectedFoods: [String] = [] {
             didSet {
@@ -27,6 +29,7 @@ struct VisionObjectRecognitionView: UIViewControllerRepresentable {
     
     func makeUIViewController(context: Context) -> VisionObjectRecognitionViewController {
         let viewController = VisionObjectRecognitionViewController()
+        
         viewController.onFoodsDetected = { foods in
             DispatchQueue.main.async {
                 self.detectedFoods = foods

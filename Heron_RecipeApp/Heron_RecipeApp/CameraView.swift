@@ -17,30 +17,36 @@ struct CameraView: View {
             Text("Camera View")
                 .font(.largeTitle)
             
-            Text(detectedFoods.isEmpty ? "No foods detected" : detectedFoods.joined(separator: "\n"))
-                .font(.title2)
-                .padding()
-                .foregroundColor(detectedFoods.isEmpty ? .gray : .black)
-                .multilineTextAlignment(.center)
-                .onChange(of: detectedFoods) { newValue in
-                    print("CameraView detectedFoods updated: \(newValue)")
-                }
             Spacer()
             
             // Display the camera feed
-            VisionObjectRecognitionView(detectedFoods: $detectedFoods).frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            Button(action: {
-                navigateToIngredients = true
-            }) {
-                Text("Stop scanning")
-                    .font(.title)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-            }
+            VisionObjectRecognitionView(detectedFoods: $detectedFoods, onReset: {
+                detectedFoods = []}).frame(maxWidth: .infinity, maxHeight: .infinity)
             
+            HStack{
+                Button(action: {
+                    navigateToIngredients = true
+                }) {
+                    Text("Stop scanning")
+                        .font(.title)
+                        .padding()
+                        .background(Color.green)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                
+                Button(action: {
+                    detectedFoods = []
+                }) {
+                    Text("Reset ingredients")
+                        .font(.title)
+                        .padding()
+                        .background(Color.red)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+            }
+
             Spacer()
         }
         .navigationTitle("Camera")
