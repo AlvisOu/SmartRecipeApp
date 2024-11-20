@@ -12,6 +12,7 @@ struct RecipeListView: View {
     @State private var sortOrder: SortOrder = .none
     @State private var servingsFilter: ServingsFilter = .all
     @State private var caloriesFilter: CaloriesFilter = .all
+    @State private var timeFilter: CookingTimeFilter = .all
     
     var body: some View {
         Group {
@@ -38,6 +39,15 @@ struct RecipeListView: View {
     
     private var filterMenu: some View {
         Menu {
+            // Time filter
+            Menu("Cooking Time") {
+                ForEach(CookingTimeFilter.allCases, id: \.self) { filter in
+                    Button(action: { timeFilter = filter }) {
+                        Label(filter.description, systemImage: timeFilter == filter ? "checkmark" : "")
+                    }
+                }
+            }
+            
             // Servings filter
             Menu("Servings") {
                 ForEach(ServingsFilter.allCases, id: \.self) { filter in
@@ -84,7 +94,8 @@ struct RecipeListView: View {
         let filtered = viewModel.recipes.filter { recipe in
             let matchesServings = servingsFilter.matches(servings: recipe.num_servings)
             let matchesCalories = caloriesFilter.matches(calories: recipe.nutrition.calories)
-            return matchesServings && matchesCalories
+            let matchesTime = timeFilter.matches(totalTime: recipe.total_time_minutes)
+            return matchesServings && matchesCalories && matchesTime
         }
         
         switch sortOrder {
@@ -110,6 +121,34 @@ enum SortOrder {
     case none
     case highestRated
     case lowestRated
+}
+
+enum CookingTimeFilter: CaseIterable {
+    case all
+    case quick       // Under 30 minutes
+    case medium      // 30-60 minutes
+    case long       // 60-120 minutes
+    case extended   // Over 120 minutes
+    
+    var description: String {
+        switch self {
+        case .all: return "All"
+        case .quick: return "Under 30 min"
+        case .medium: return "30-60 min"
+        case .long: return "1-2 hours"
+        case .extended: return "Over 2 hours"
+        }
+    }
+    
+    func matches(totalTime: Int) -> Bool {
+        switch self {
+        case .all: return true
+        case .quick: return totalTime < 30
+        case .medium: return totalTime >= 30 && totalTime < 60
+        case .long: return totalTime >= 60 && totalTime < 120
+        case .extended: return totalTime >= 120
+        }
+    }
 }
 
 enum ServingsFilter: CaseIterable {
@@ -168,7 +207,6 @@ enum CaloriesFilter: CaseIterable {
     }
 }
 
-// Rest of the code remains the same (RecipeRowView, ErrorView, etc.)
 struct RecipeRowView: View {
     let recipe: Recipe
     @State private var image: UIImage?
