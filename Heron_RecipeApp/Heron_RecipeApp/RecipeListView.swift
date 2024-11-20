@@ -10,6 +10,8 @@ import SwiftUI
 struct RecipeListView: View {
     @EnvironmentObject private var viewModel: RecipeViewModel
     @State private var sortOrder: SortOrder = .none
+    @State private var servingsFilter: ServingsFilter = .all
+    @State private var caloriesFilter: CaloriesFilter = .all
     
     var body: some View {
         Group {
@@ -26,39 +28,77 @@ struct RecipeListView: View {
         .navigationTitle("Recipes")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Menu {
-                    Button(action: { sortOrder = .none }) {
-                        Label("Default", systemImage: sortOrder == .none ? "checkmark" : "")
-                    }
-                    
-                    Button(action: { sortOrder = .highestRated }) {
-                        Label("Highest Rated", systemImage: sortOrder == .highestRated ? "checkmark" : "")
-                    }
-                    
-                    Button(action: { sortOrder = .lowestRated }) {
-                        Label("Lowest Rated", systemImage: sortOrder == .lowestRated ? "checkmark" : "")
-                    }
-                } label: {
-                    Label("Sort", systemImage: "arrow.up.arrow.down")
-                        .foregroundColor(.blue)
+                HStack {
+                    filterMenu
+                    sortMenu
                 }
             }
         }
     }
     
-    private var sortedRecipes: [Recipe] {
+    private var filterMenu: some View {
+        Menu {
+            // Servings filter
+            Menu("Servings") {
+                ForEach(ServingsFilter.allCases, id: \.self) { filter in
+                    Button(action: { servingsFilter = filter }) {
+                        Label(filter.description, systemImage: servingsFilter == filter ? "checkmark" : "")
+                    }
+                }
+            }
+            
+            // Calories filter
+            Menu("Calories") {
+                ForEach(CaloriesFilter.allCases, id: \.self) { filter in
+                    Button(action: { caloriesFilter = filter }) {
+                        Label(filter.description, systemImage: caloriesFilter == filter ? "checkmark" : "")
+                    }
+                }
+            }
+        } label: {
+            Label("Filter", systemImage: "line.3.horizontal.decrease.circle")
+                .foregroundColor(.blue)
+        }
+    }
+    
+    private var sortMenu: some View {
+        Menu {
+            Button(action: { sortOrder = .none }) {
+                Label("Default", systemImage: sortOrder == .none ? "checkmark" : "")
+            }
+            
+            Button(action: { sortOrder = .highestRated }) {
+                Label("Highest Rated", systemImage: sortOrder == .highestRated ? "checkmark" : "")
+            }
+            
+            Button(action: { sortOrder = .lowestRated }) {
+                Label("Lowest Rated", systemImage: sortOrder == .lowestRated ? "checkmark" : "")
+            }
+        } label: {
+            Label("Sort", systemImage: "arrow.up.arrow.down")
+                .foregroundColor(.blue)
+        }
+    }
+    
+    private var filteredAndSortedRecipes: [Recipe] {
+        let filtered = viewModel.recipes.filter { recipe in
+            let matchesServings = servingsFilter.matches(servings: recipe.num_servings)
+            let matchesCalories = caloriesFilter.matches(calories: recipe.nutrition.calories)
+            return matchesServings && matchesCalories
+        }
+        
         switch sortOrder {
         case .highestRated:
-            return viewModel.recipes.sorted { $0.user_ratings.score > $1.user_ratings.score }
+            return filtered.sorted { $0.user_ratings.score > $1.user_ratings.score }
         case .lowestRated:
-            return viewModel.recipes.sorted { $0.user_ratings.score < $1.user_ratings.score }
+            return filtered.sorted { $0.user_ratings.score < $1.user_ratings.score }
         case .none:
-            return viewModel.recipes
+            return filtered
         }
     }
     
     private var recipeList: some View {
-        List(sortedRecipes) { recipe in
+        List(filteredAndSortedRecipes) { recipe in
             NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
                 RecipeRowView(recipe: recipe)
             }
@@ -72,6 +112,63 @@ enum SortOrder {
     case lowestRated
 }
 
+enum ServingsFilter: CaseIterable {
+    case all
+    case small      // 1-2 servings
+    case medium     // 3-4 servings
+    case large      // 5-6 servings
+    case extraLarge // 7+ servings
+    
+    var description: String {
+        switch self {
+        case .all: return "All"
+        case .small: return "1-2 servings"
+        case .medium: return "3-4 servings"
+        case .large: return "5-6 servings"
+        case .extraLarge: return "7+ servings"
+        }
+    }
+    
+    func matches(servings: Int) -> Bool {
+        switch self {
+        case .all: return true
+        case .small: return servings <= 2
+        case .medium: return servings >= 3 && servings <= 4
+        case .large: return servings >= 5 && servings <= 6
+        case .extraLarge: return servings >= 7
+        }
+    }
+}
+
+enum CaloriesFilter: CaseIterable {
+    case all
+    case under300
+    case under500
+    case under800
+    case over800
+    
+    var description: String {
+        switch self {
+        case .all: return "All"
+        case .under300: return "Under 300"
+        case .under500: return "Under 500"
+        case .under800: return "Under 800"
+        case .over800: return "Over 800"
+        }
+    }
+    
+    func matches(calories: Int) -> Bool {
+        switch self {
+        case .all: return true
+        case .under300: return calories < 300
+        case .under500: return calories < 500
+        case .under800: return calories < 800
+        case .over800: return calories >= 800
+        }
+    }
+}
+
+// Rest of the code remains the same (RecipeRowView, ErrorView, etc.)
 struct RecipeRowView: View {
     let recipe: Recipe
     @State private var image: UIImage?
