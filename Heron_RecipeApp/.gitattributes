@@ -1,0 +1,2 @@
+*.mlmodel filter=lfs diff=lfs merge=lfs -text
+*.mlproj filter=lfs diff=lfs merge=lfs -text
