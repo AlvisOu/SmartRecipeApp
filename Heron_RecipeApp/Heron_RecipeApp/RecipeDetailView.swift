@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AVKit
 
 struct RecipeDetailView: View {
     let recipe: Recipe
@@ -34,6 +35,19 @@ struct RecipeDetailView: View {
                     timeInformationView
                     
                     ingredientsSection
+                    
+                    if let videoUrl = recipe.video_url,
+                       let url = URL(string: videoUrl) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Video Guide")
+                                .font(.title2)
+                                .bold()
+                            
+                            VideoPlayer(player: AVPlayer(url: url))
+                                .frame(height: 200)
+                                .cornerRadius(8)
+                        }
+                    }
                     
                     instructionsSection
                 }
