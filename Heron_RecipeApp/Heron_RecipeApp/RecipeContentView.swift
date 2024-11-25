@@ -13,6 +13,8 @@
 //  Created by  dam2274 on 11/11/24.
 //
 
+/*
+
 import SwiftUI
 import WebKit
 
@@ -106,3 +108,38 @@ struct MyApp: App {
 #Preview {
     ContentView()
 }
+*/
+
+// Testing the dictionary load
+
+import SwiftUI
+
+// Define a dictionary type for storing ingredients and their IDs
+typealias IngredientDictionary = [String: Int]
+
+struct ContentView: View {
+    @State private var ingredients: [String: Int] = [:]
+
+    var body: some View {
+        VStack {
+            // Display the ingredient dictionary
+            List(ingredients.keys.sorted(), id: \.self) { key in
+                if let count = ingredients[key] {
+                    Text("\(key): \(count)")
+                }
+            }
+        }
+        .onAppear {
+            // Load ingredients when the view appears
+            loadIngredientsFromCSV()
+            self.ingredients = ingredientDictionary
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+

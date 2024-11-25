@@ -8,6 +8,8 @@
 import SwiftUI
 import AVFoundation
 import Vision
+import Combine
+
 class VisionObjectRecognitionViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     private var requests = [VNRequest]()
@@ -18,31 +20,47 @@ class VisionObjectRecognitionViewController: UIViewController, AVCaptureVideoDat
     var bufferSize: CGSize = .zero
     var rootLayer: CALayer! = nil
     
+    var onFoodsDetected: (([String]) -> Void)?
+    
+    var cancellables = Set<AnyCancellable>()
+    
     // String array that stores the scanned ingredients
-    var detectedFoods: [String] = [] {
-        didSet{
+    @Published var detectedFoods: [String] = [] {
+        didSet {
             reportFood()
+            onFoodsDetected?(detectedFoods)
         }
     }
+    
+    // Reset detected foods
+        func resetFoods() {
+            detectedFoods = []
+            print("ViewController foods reset")
+        }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupAVCapture()
         setupVision()
-        reportFood()
+        
+        $detectedFoods
+            .sink { foods in
+                print("ViewController detectedFoods observed via Combine: \(foods)")
+            }
+            .store(in: &cancellables)
     }
     
     // Prints food array when it changes
     private func reportFood() {
         let foodText = detectedFoods.isEmpty ?
-            "No foods detected yet" :
-            "Detected Foods:\n" + detectedFoods.joined(separator: "\n")
-        print("Updating label with text: \(foodText)")
+        "No foods detected yet" :
+        "Detected Foods:\n" + detectedFoods.joined(separator: "\n")
+        print("ViewController detectedFoods updated: \(foodText)")
     }
     
     // Sets up the Vision framework to use a Core ML model
     private func setupVision(){
-        guard let modelURL = Bundle.main.url(forResource: "TomatoOnionDetector", withExtension: "mlmodelc") else {
+        guard let modelURL = Bundle.main.url(forResource: "FoodModel", withExtension: "mlmodelc") else {
             return
         }
         do {
@@ -73,7 +91,8 @@ class VisionObjectRecognitionViewController: UIViewController, AVCaptureVideoDat
     // Processes the ingredient classification and adds it to food array if not seen before
     private func processClassifications(for request: VNRequest, error: Error?) {
         guard let results = request.results as? [VNRecognizedObjectObservation] else { return }
-        let highConfidenceResults = results.filter { $0.confidence > 0.8 }
+        
+        let highConfidenceResults = results.filter { $0.confidence > 0.90 }
         
         if let topResult = highConfidenceResults.first, let topLabel = topResult.labels.first {
             DispatchQueue.main.async { [weak self] in
@@ -97,10 +116,11 @@ class VisionObjectRecognitionViewController: UIViewController, AVCaptureVideoDat
             return
         }
         
-        // Start setting up the session configuration
+        // Start setting up the camera session configuration
         session.beginConfiguration()
         session.sessionPreset = .vga640x480
         
+        // Configure the session input
         guard session.canAddInput(deviceInput) else {
             print("Could not add video device input to the session")
             session.commitConfiguration()
@@ -108,6 +128,7 @@ class VisionObjectRecognitionViewController: UIViewController, AVCaptureVideoDat
         }
         session.addInput(deviceInput)
         
+        // Configure the session output
         if session.canAddOutput(videoDataOutput) {
             session.addOutput(videoDataOutput)
             videoDataOutput.alwaysDiscardsLateVideoFrames = true
@@ -132,17 +153,21 @@ class VisionObjectRecognitionViewController: UIViewController, AVCaptureVideoDat
             print(error)
         }
         session.commitConfiguration()
-        
-        // Start the session asynchronously on a background queue
+        startSession()
+    }
+    
+    func startSession() {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             self?.session.startRunning()
             DispatchQueue.main.async {
-                self?.previewLayer = AVCaptureVideoPreviewLayer(session: self?.session ?? AVCaptureSession())
-                self?.previewLayer.videoGravity = .resizeAspectFill
-                self?.rootLayer = self?.view.layer
-                self?.previewLayer.frame = CGRect(x: 0, y: 0, width: self?.view.frame.width ?? 0, height: self?.view.frame.height ?? 0)
-                self?.rootLayer?.addSublayer(self?.previewLayer ?? CALayer())
+                guard let self = self else { return }
+                self.previewLayer = AVCaptureVideoPreviewLayer(session: self.session)
+                self.previewLayer.videoGravity = .resizeAspectFill
+                self.rootLayer = self.view.layer
+                self.previewLayer.frame = self.view.bounds
+                self.rootLayer?.addSublayer(self.previewLayer)
             }
         }
     }
+    
 }

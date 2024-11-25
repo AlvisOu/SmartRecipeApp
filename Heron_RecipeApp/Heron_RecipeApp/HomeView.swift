@@ -22,12 +22,25 @@ struct HomeView: View {
             
             Spacer()
             
+            // Link to CameraView
             NavigationLink(destination: CameraView()) {
-                Text("Start Scanning")
+                Text("Open Camera")
                     .font(.title2)
                     .padding()
                     .frame(maxWidth: .infinity)
                     .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                    .padding(.horizontal, 20)
+            }
+            
+            // Link to ReceiptScannerContainerView
+            NavigationLink(destination: ReceiptScannerContainerView()) {
+                Text("Scan Receipt")
+                    .font(.title2)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.green)
                     .foregroundColor(.white)
                     .cornerRadius(10)
                     .padding(.horizontal, 20)

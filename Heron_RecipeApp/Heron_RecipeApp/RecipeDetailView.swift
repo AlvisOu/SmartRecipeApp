@@ -5,40 +5,117 @@
 //  Created by Luci Feinberg on 11/13/24.
 //
 
-import Foundation
 import SwiftUI
+import AVKit
 
 struct RecipeDetailView: View {
-    let recipeName: String
+    let recipe: Recipe
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(recipeName)
-                .font(.largeTitle)
-                .padding(.bottom, 10)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                AsyncImage(url: URL(string: recipe.thumbnail_url)) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    Color.gray
+                }
+                .frame(height: 200)
+                .clipped()
+                
+                VStack(alignment: .leading, spacing: 16) {
+                    Text(recipe.name)
+                        .font(.title)
+                        .bold()
+                    
+                    Text(recipe.description)
+                        .font(.body)
+                    
+                    timeInformationView
+                    
+                    ingredientsSection
+                    
+                    if let videoUrl = recipe.video_url,
+                       let url = URL(string: videoUrl) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Video Guide")
+                                .font(.title2)
+                                .bold()
+                            
+                            VideoPlayer(player: AVPlayer(url: url))
+                                .frame(height: 200)
+                                .cornerRadius(8)
+                        }
+                    }
+                    
+                    instructionsSection
+                }
+                .padding()
+            }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+    }
+    
+    private var timeInformationView: some View {
+        HStack(spacing: 20) {
+            VStack {
+                Text("Prep")
+                Text("\(recipe.prep_time_minutes)min")
+            }
             
+            VStack {
+                Text("Cook")
+                Text("\(recipe.cook_time_minutes)min")
+            }
+            
+            VStack {
+                Text("Total")
+                Text("\(recipe.total_time_minutes)min")
+            }
+        }
+        .font(.subheadline)
+    }
+    
+    private var ingredientsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
             Text("Ingredients")
                 .font(.title2)
+                .bold()
             
-            Text("- Ingredient 1\n- Ingredient 2\n- Ingredient 3") // Placeholder ingredients
-            
+            ForEach(recipe.sections, id: \.position) { section in
+                if let name = section.name {
+                    Text(name)
+                        .font(.headline)
+                }
+                
+                ForEach(section.components.indices, id: \.self) { index in
+                    if section.components[index].raw_text.lowercased() != "n/a" {
+                        Text("• \(section.components[index].raw_text)")
+                    }
+                }
+            }
+        }
+    }
+    
+    private var instructionsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
             Text("Instructions")
                 .font(.title2)
-                .padding(.top, 10)
+                .bold()
             
-            Text("1. Step one.\n2. Step two.\n3. Step three.") // Placeholder instructions
-            
-            Spacer()
+            ForEach(recipe.instructions) { instruction in
+                Text("\(instruction.position). \(instruction.display_text)")
+                    .padding(.vertical, 4)
+            }
         }
-        .padding()
-        .navigationTitle("Recipe Details")
     }
 }
 
 struct RecipeDetailView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            RecipeDetailView(recipeName: "Sample Recipe")
+            RecipeDetailView(recipe: Recipe.preview)
         }
     }
 }
