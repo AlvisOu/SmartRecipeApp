@@ -11,6 +11,7 @@ struct CameraView: View {
     // State variable to trigger navigation
     @State private var navigateToIngredients = false
     @State private var detectedFoods: [String] = []
+    @State private var cameraViewController: VisionObjectRecognitionViewController?
     
     var body: some View {
         VStack {
@@ -20,8 +21,14 @@ struct CameraView: View {
             Spacer()
             
             // Display the camera feed
-            VisionObjectRecognitionView(detectedFoods: $detectedFoods, onReset: {
-                detectedFoods = []}).frame(maxWidth: .infinity, maxHeight: .infinity)
+            VisionObjectRecognitionView(
+                detectedFoods: $detectedFoods,
+                onReset: {
+                detectedFoods = []},
+                onViewControllerCreated: { viewController in
+                    cameraViewController = viewController
+                })
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             
             HStack{
                 Button(action: {
@@ -56,6 +63,18 @@ struct CameraView: View {
                 EmptyView()
             }
         )
+        
+        .onDisappear {
+            if let viewController = cameraViewController {
+                VisionObjectRecognitionView.stopSession(viewController: viewController)
+            }
+        }
+        .onAppear {
+            if let viewController = cameraViewController {
+                VisionObjectRecognitionView.restartSession(viewController: viewController)
+            }
+        }
+        
     }
 }
 

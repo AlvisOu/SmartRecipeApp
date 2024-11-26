@@ -33,10 +33,10 @@ class VisionObjectRecognitionViewController: UIViewController, AVCaptureVideoDat
     }
     
     // Reset detected foods
-        func resetFoods() {
-            detectedFoods = []
-            print("ViewController foods reset")
-        }
+    func resetFoods() {
+        detectedFoods = []
+        print("ViewController foods reset")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -169,5 +169,30 @@ class VisionObjectRecognitionViewController: UIViewController, AVCaptureVideoDat
             }
         }
     }
+    
+    // Stop the camera session
+    func stopSession() {
+        if session.isRunning {
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                guard let self = self else { return }
+                
+                // Stop running the session
+                self.session.stopRunning()
+                
+                // Remove all inputs and outputs
+                self.session.beginConfiguration()
+                self.session.inputs.forEach { self.session.removeInput($0) }
+                self.session.outputs.forEach { self.session.removeOutput($0) }
+                self.session.commitConfiguration()
+                
+                // Reset detected foods
+                DispatchQueue.main.async {
+                    self.resetFoods()
+                    self.previewLayer?.removeFromSuperlayer()
+                }
+            }
+        }
+    }
+
     
 }

@@ -9,8 +9,8 @@ import SwiftUI
 import Foundation
 struct VisionObjectRecognitionView: UIViewControllerRepresentable {
     @Binding var detectedFoods: [String]
-    
     var onReset: () -> Void
+    var onViewControllerCreated: (VisionObjectRecognitionViewController) -> Void
     
     class Coordinator: NSObject, ObservableObject {
         @Published var detectedFoods: [String] = [] {
@@ -36,11 +36,24 @@ struct VisionObjectRecognitionView: UIViewControllerRepresentable {
                 print("VisionObjectRecognitionView detectedFoods updated: \(foods)")
             }
         }
+        
+        DispatchQueue.main.async {
+                self.onViewControllerCreated(viewController)
+            }
 
         return viewController
     }
     
     func updateUIViewController(_ uiViewController: VisionObjectRecognitionViewController, context: Context) {
+    }
+    
+    static func stopSession(viewController: VisionObjectRecognitionViewController) {
+        viewController.stopSession()
+        print("Stopping session")
+    }
+        
+    static func restartSession(viewController: VisionObjectRecognitionViewController) {
+        viewController.setupAVCapture()
     }
     
 }
