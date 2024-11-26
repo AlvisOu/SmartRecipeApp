@@ -13,57 +13,57 @@ struct IngredientsView: View {
     @State private var showingEditView = false
     
     var body: some View {
-        NavigationStack {
-            VStack {
-                HStack {
-                    // MARK: Add Ingredient Button
-                    Button(action: {
-                        showingAddView = true
-                    }) {
-                        Label("Add Ingredient", systemImage: "plus.circle.fill")
-                            .foregroundColor(.blue)
-                    }
-                    
-                    Spacer()
-                    
-                    // MARK: Edit Button
-                    Button(action: {
-                        showingEditView = true
-                    }) {
-                        Text("Edit")
-                            .foregroundColor(.blue)
-                    }
+        
+        VStack {
+            HStack {
+                // MARK: Add Ingredient Button
+                Button(action: {
+                    showingAddView = true
+                }) {
+                    Label("Add Ingredient", systemImage: "plus.circle.fill")
+                        .foregroundColor(.blue)
                 }
-                .padding([.horizontal, .top])
                 
-                // MARK: Header
-                Text("Ingredients")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
-                    .padding(.top,3)
+                Spacer()
                 
-                // MARK: List of Ingredients
-                List {
-                    ForEach(ingredients, id: \.self){ ingredient in Text(ingredient)}
+                // MARK: Edit Button
+                Button(action: {
+                    showingEditView = true
+                }) {
+                    Text("Edit")
+                        .foregroundColor(.blue)
                 }
             }
+            .padding([.horizontal, .top])
             
-            // MARK: Generate Recipe Button
-            NavigationLink(destination: GenerateRecipeView(ingredients: ingredients)) {
-                Text("Generate Recipe")
-                    .font(.system(size: 20))
-                    .foregroundColor(.blue)
-                    .frame(width: 250)
-                    .padding()
-                    .background(Color(.systemGray5))
-                    .cornerRadius(20)
-                    .padding(.top, 10)
-                    .padding(.bottom, 1)
-                
+            // MARK: Header
+            Text("Ingredients")
+                .font(.title)
+                .fontWeight(.bold)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal)
+                .padding(.top,3)
+            
+            // MARK: List of Ingredients
+            List {
+                ForEach(ingredients, id: \.self){ ingredient in Text(ingredient)}
             }
         }
+        
+        // MARK: Generate Recipe Button
+        NavigationLink(destination: GenerateRecipeView(ingredients: ingredients)) {
+            Text("Generate Recipe")
+                .font(.system(size: 20))
+                .foregroundColor(.blue)
+                .frame(width: 250)
+                .padding()
+                .background(Color(.systemGray5))
+                .cornerRadius(20)
+                .padding(.top, 10)
+                .padding(.bottom, 1)
+            
+        }
+        
         
         // Navigate to Add Ingredient Sheet
         .sheet(isPresented: $showingAddView) {

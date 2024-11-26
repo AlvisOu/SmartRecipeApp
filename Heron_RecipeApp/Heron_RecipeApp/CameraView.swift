@@ -15,10 +15,6 @@ struct CameraView: View {
     
     var body: some View {
         VStack {
-            Text("Camera View")
-                .font(.largeTitle)
-            
-            Spacer()
             
             // Display the camera feed
             VisionObjectRecognitionView(
@@ -47,7 +43,6 @@ struct CameraView: View {
 
             Spacer()
         }
-        .navigationTitle("Camera")
         // Navigation link tied to the state variable
         .background(
             NavigationLink(destination: IngredientsView(ingredients: detectedFoods), isActive: $navigateToIngredients) {

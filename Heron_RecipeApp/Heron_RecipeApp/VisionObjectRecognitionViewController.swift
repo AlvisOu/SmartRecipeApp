@@ -59,7 +59,7 @@ class VisionObjectRecognitionViewController: UIViewController, AVCaptureVideoDat
     
     // Sets up the Vision framework to use a Core ML model
     private func setupVision(){
-        guard let modelURL = Bundle.main.url(forResource: "FoodModel", withExtension: "mlmodelc") else {
+        guard let modelURL = Bundle.main.url(forResource: "TomatoOnionDetector", withExtension: "mlmodelc") else {
             return
         }
         do {
@@ -91,7 +91,7 @@ class VisionObjectRecognitionViewController: UIViewController, AVCaptureVideoDat
     private func processClassifications(for request: VNRequest, error: Error?) {
         guard let results = request.results as? [VNRecognizedObjectObservation] else { return }
         
-        let highConfidenceResults = results.filter { $0.confidence > 0.90 }
+        let highConfidenceResults = results.filter { $0.confidence > 0.6 }
         
         if let topResult = highConfidenceResults.first, let topLabel = topResult.labels.first {
             DispatchQueue.main.async { [weak self] in
