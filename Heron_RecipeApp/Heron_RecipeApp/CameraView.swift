@@ -30,17 +30,19 @@ struct CameraView: View {
                 })
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             
-            HStack{
-                Button(action: {
-                    navigateToIngredients = true
-                }) {
-                    Text("Stop scanning")
-                        .font(.title)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
+            Text("Ingredients Detected: \(detectedFoods.count)")
+                .font(.headline)
+                .padding()
+            
+            Button(action: {
+                navigateToIngredients = true
+            }) {
+                Text("Stop scanning")
+                    .font(.title)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
             }
 
             Spacer()
