@@ -37,18 +37,7 @@ struct CameraView: View {
                     Text("Stop scanning")
                         .font(.title)
                         .padding()
-                        .background(Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
-                
-                Button(action: {
-                    detectedFoods = []
-                }) {
-                    Text("Reset ingredients")
-                        .font(.title)
-                        .padding()
-                        .background(Color.red)
+                        .background(Color.blue)
                         .foregroundColor(.white)
                         .cornerRadius(10)
                 }
@@ -70,8 +59,9 @@ struct CameraView: View {
             }
         }
         .onAppear {
+            detectedFoods = []
             if let viewController = cameraViewController {
-                VisionObjectRecognitionView.restartSession(viewController: viewController)
+                VisionObjectRecognitionView.resumeSession(viewController: viewController)
             }
         }
         

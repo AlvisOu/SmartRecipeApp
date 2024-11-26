@@ -35,7 +35,6 @@ class VisionObjectRecognitionViewController: UIViewController, AVCaptureVideoDat
     // Reset detected foods
     func resetFoods() {
         detectedFoods = []
-        print("ViewController foods reset")
     }
     
     override func viewDidLoad() {
@@ -175,24 +174,37 @@ class VisionObjectRecognitionViewController: UIViewController, AVCaptureVideoDat
         if session.isRunning {
             DispatchQueue.global(qos: .userInitiated).async { [weak self] in
                 guard let self = self else { return }
-                
-                // Stop running the session
+
                 self.session.stopRunning()
-                
-                // Remove all inputs and outputs
-                self.session.beginConfiguration()
-                self.session.inputs.forEach { self.session.removeInput($0) }
-                self.session.outputs.forEach { self.session.removeOutput($0) }
-                self.session.commitConfiguration()
-                
-                // Reset detected foods
                 DispatchQueue.main.async {
-                    self.resetFoods()
                     self.previewLayer?.removeFromSuperlayer()
+                    self.previewLayer = nil
                 }
             }
         }
     }
+
+    
+    func resumeSession() {
+        if !session.isRunning {
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                guard let self = self else { return }
+                
+                self.session.startRunning()
+                DispatchQueue.main.async {
+                    self.resetFoods()
+                    if self.previewLayer == nil {
+                        self.previewLayer = AVCaptureVideoPreviewLayer(session: self.session)
+                        self.previewLayer.videoGravity = .resizeAspectFill
+                        self.previewLayer.frame = self.view.bounds
+                        self.rootLayer?.addSublayer(self.previewLayer)
+                    }
+                }
+            }
+        }
+    }
+
+
 
     
 }

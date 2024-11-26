@@ -49,11 +49,10 @@ struct VisionObjectRecognitionView: UIViewControllerRepresentable {
     
     static func stopSession(viewController: VisionObjectRecognitionViewController) {
         viewController.stopSession()
-        print("Stopping session")
     }
         
-    static func restartSession(viewController: VisionObjectRecognitionViewController) {
-        viewController.setupAVCapture()
+    static func resumeSession(viewController: VisionObjectRecognitionViewController) {
+        viewController.resumeSession()
     }
     
 }
