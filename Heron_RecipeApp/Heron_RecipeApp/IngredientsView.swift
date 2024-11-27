@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Pluralize
 
 struct IngredientsView: View {
     @State var ingredients: [String]
@@ -82,6 +83,7 @@ struct AddNewIngredientView: View {
     @Binding var ingredients: [String]
     @State private var newIngredient: String = ""
     @Environment(\.dismiss) private var dismiss
+    @State private var showDuplicateAlert = false
     
     var body: some View {
         VStack {
@@ -93,10 +95,7 @@ struct AddNewIngredientView: View {
                 TextField("Enter ingredient", text: $newIngredient)
                 
                 Button(action: {
-                    if !newIngredient.isEmpty {
-                        ingredients.append(newIngredient)
-                        dismiss()
-                    }
+                    addIngredient()
                 }) {
                     HStack {
                         Image(systemName: "plus.circle.fill")
@@ -106,6 +105,26 @@ struct AddNewIngredientView: View {
             }
             Text("Swipe down to cancel.")
                 .padding(.top)
+        }
+        .alert(isPresented: $showDuplicateAlert) {
+            Alert(
+                title: Text("Duplicate Ingredient"),
+                message: Text("This ingredient is already in the list."),
+                dismissButton: .default(Text("OK"))
+            )
+        }
+    }
+    
+    private func addIngredient() {
+        let normalizedIngredient = newIngredient.singularized.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if !normalizedIngredient.isEmpty {
+            if !ingredients.contains(where: { $0.lowercased() == normalizedIngredient }) {
+                ingredients.append(normalizedIngredient)
+                dismiss()
+            } else {
+                showDuplicateAlert = true
+            }
         }
     }
 }
