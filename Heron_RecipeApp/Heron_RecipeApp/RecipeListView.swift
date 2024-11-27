@@ -21,9 +21,7 @@ struct RecipeListView: View {
             } else if let error = viewModel.errorMessage {
                 ErrorView(message: error)
             } else {
-                VStack {
-                    recipeList
-                }
+                recipeContent
             }
         }
         .navigationTitle("Recipes")
@@ -35,6 +33,34 @@ struct RecipeListView: View {
                 }
             }
         }
+    }
+    
+    private var recipeContent: some View {
+        Group {
+            if filteredAndSortedRecipes.isEmpty {
+                noRecipesView
+            } else {
+                VStack {
+                    recipeList
+                }
+            }
+        }
+    }
+    
+    private var noRecipesView: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "fork.knife.circle")
+                .font(.system(size: 64))
+                .foregroundColor(.gray)
+            Text("No recipes available")
+                .font(.title2)
+                .foregroundColor(.secondary)
+            Text("Try adjusting your filters or add more ingredients")
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+        }
+        .padding()
     }
     
     private var filterMenu: some View {
