@@ -120,7 +120,7 @@ struct AddNewIngredientView: View {
         
         if !normalizedIngredient.isEmpty {
             if !ingredients.contains(where: { $0.lowercased() == normalizedIngredient }) {
-                ingredients.append(normalizedIngredient.capitalized)
+                ingredients.append(normalizedIngredient)
                 dismiss()
             } else {
                 showDuplicateAlert = true
