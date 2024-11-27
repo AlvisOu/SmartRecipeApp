@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Pluralize
 
 struct IngredientsView: View {
     @State var ingredients: [String]
@@ -94,7 +95,7 @@ struct AddNewIngredientView: View {
                 
                 Button(action: {
                     if !newIngredient.isEmpty {
-                        ingredients.append(newIngredient)
+                        ingredients.append(newIngredient.singularized)
                         dismiss()
                     }
                 }) {
