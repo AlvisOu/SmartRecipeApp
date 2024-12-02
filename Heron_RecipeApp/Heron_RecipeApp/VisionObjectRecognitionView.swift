@@ -27,23 +27,6 @@ struct VisionObjectRecognitionView: UIViewControllerRepresentable {
         Coordinator()
     }
     
-    var onReset: () -> Void
-    
-    class Coordinator: NSObject, ObservableObject {
-        @Published var detectedFoods: [String] = [] {
-            didSet {
-                print("Coordinator detectedFoods updated: \(detectedFoods)")
-            }
-        }
-        override init() {
-            super.init()
-        }
-    }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator()
-    }
-    
     func makeUIViewController(context: Context) -> VisionObjectRecognitionViewController {
         let viewController = VisionObjectRecognitionViewController()
         
@@ -71,4 +54,5 @@ struct VisionObjectRecognitionView: UIViewControllerRepresentable {
     static func resumeSession(viewController: VisionObjectRecognitionViewController) {
         viewController.resumeSession()
     }
+    
 }

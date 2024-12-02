@@ -15,6 +15,7 @@ struct CameraView: View {
     
     var body: some View {
         VStack {
+            
             // Display the camera feed
             VisionObjectRecognitionView(
                 detectedFoods: $detectedFoods,
