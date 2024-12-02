@@ -110,3 +110,38 @@ struct Section: Codable {
 struct Component: Codable {
     let raw_text: String
 }
+
+// MARK: - Ingredient Dictionary Parsing
+
+// The dictionary to store ingredients and their IDs
+var ingredientDictionary: [String: Int] = [:]
+
+// Function to load and parse the CSV file into a dictionary
+func loadIngredientsFromCSV() {
+    guard let url = Bundle.main.url(forResource: "top-1k-ingredients", withExtension: "csv") else {
+        print("CSV file not found!")
+        return
+    }
+    
+    do {
+        let data = try String(contentsOf: url)
+        var tempIngredients: [String: Int] = [:]
+        
+        // Split the file into lines and parse each line into key-value pairs
+        let lines = data.split(separator: "\n")
+        for line in lines {
+            let components = line.split(separator: ";")
+            if components.count == 2,
+               let ingredient = components.first?.trimmingCharacters(in: .whitespaces),
+               let countString = components.last?.trimmingCharacters(in: .whitespaces),
+               let count = Int(countString) {
+                tempIngredients[ingredient] = count
+            }
+        }
+        
+        // Store the parsed dictionary into the global ingredientDictionary
+        ingredientDictionary = tempIngredients
+    } catch {
+        print("Error reading the CSV file: \(error.localizedDescription)")
+    }
+}
