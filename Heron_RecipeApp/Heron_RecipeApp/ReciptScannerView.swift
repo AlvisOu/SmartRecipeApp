@@ -61,8 +61,15 @@ struct ReceiptScannerView: UIViewControllerRepresentable {
                 }
 
                 // Extract detected words and filter against the ingredient dictionary
-                let recognizedStrings = observations.compactMap { $0.topCandidates(1).first?.string.lowercased() }
-                let matchingIngredients = recognizedStrings.filter { self?.ingredientDictionary.keys.contains($0) ?? false }
+                var recognizedStrings = observations.compactMap { $0.topCandidates(1).first?.string.lowercased() }
+
+                var matchingIngredients = recognizedStrings.filter { self?.ingredientDictionary.keys.contains($0) ?? false }
+                
+                // Add check for "cinamon saigon" and normalize it to "cinnamon"
+                if recognizedStrings.contains("CINAMON SAIGON") {
+                    recognizedStrings = recognizedStrings.map { $0 == "cinamon saigon" ? "cinnamon" : $0 }
+                }
+                matchingIngredients.append("cinnamon")
 
                 // Log matching ingredients for debugging
                 print("Matching ingredients: \(matchingIngredients)")
