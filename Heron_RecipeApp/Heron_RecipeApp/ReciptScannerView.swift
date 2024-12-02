@@ -9,12 +9,6 @@ import SwiftUI
 import VisionKit
 import Vision
 
-// Things we need to figure out
-// 1. How can we test on our device?
-// 2. Should we make API calls to spoonacular?
-// 3. Integrate with the other parts of the app
-// 4. Add image picker?
-
 struct ReceiptScannerView: UIViewControllerRepresentable {
     @Binding var detectedIngredients: [String] // Bind to detected ingredients
     @Environment(\.presentationMode) var presentationMode // For dismissing the scanner
@@ -38,13 +32,13 @@ struct ReceiptScannerView: UIViewControllerRepresentable {
     class Coordinator: NSObject, VNDocumentCameraViewControllerDelegate {
         @Binding var detectedIngredients: [String]
         private var presentationMode: Binding<PresentationMode>
-        private let ingredients = ["potato", "beet", "carrot", "chicken", "beef", "sugar", "egg", "cooking oil"] // Predefined list
-        
-        //Add initalize ingredients list here!!
+        private var ingredientDictionary: [String: Int] = [:] // Store the parsed ingredient list
 
         init(detectedIngredients: Binding<[String]>, presentationMode: Binding<PresentationMode>) {
             _detectedIngredients = detectedIngredients
             self.presentationMode = presentationMode
+            super.init() // Ensure the initializer chain is complete
+            loadIngredientsFromCSV() // Call the method after `super.init()`
         }
 
         func documentCameraViewController(_ controller: VNDocumentCameraViewController, didFinishWith scan: VNDocumentCameraScan) {
@@ -66,20 +60,50 @@ struct ReceiptScannerView: UIViewControllerRepresentable {
                     return
                 }
 
-                // Extract detected words and filter against the ingredients list
+                // Extract detected words and filter against the ingredient dictionary
                 let recognizedStrings = observations.compactMap { $0.topCandidates(1).first?.string.lowercased() }
-                let matchingIngredients = recognizedStrings.filter { self?.ingredients.contains($0) ?? false }
+                let matchingIngredients = recognizedStrings.filter { self?.ingredientDictionary.keys.contains($0) ?? false }
 
                 // Log matching ingredients for debugging
                 print("Matching ingredients: \(matchingIngredients)")
 
                 DispatchQueue.main.async {
-                    self?.detectedIngredients = matchingIngredients
+                    self?.detectedIngredients = Array(Set(matchingIngredients)) // Remove duplicates
                 }
             }
 
             let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
             try? handler.perform([request])
+        }
+
+        // Function to load and parse the CSV file into the ingredientDictionary
+        private func loadIngredientsFromCSV() {
+            guard let url = Bundle.main.url(forResource: "top-1k-ingredients", withExtension: "csv") else {
+                print("CSV file not found!")
+                return
+            }
+
+            do {
+                let data = try String(contentsOf: url)
+                var tempIngredients: [String: Int] = [:]
+
+                // Split the file into lines and parse each line into key-value pairs
+                let lines = data.split(separator: "\n")
+                for line in lines {
+                    let components = line.split(separator: ";")
+                    if components.count == 2,
+                       let ingredient = components.first?.trimmingCharacters(in: .whitespaces),
+                       let countString = components.last?.trimmingCharacters(in: .whitespaces),
+                       let count = Int(countString) {
+                        tempIngredients[ingredient.lowercased()] = count
+                    }
+                }
+
+                // Store the parsed dictionary into the instance variable
+                self.ingredientDictionary = tempIngredients
+            } catch {
+                print("Error reading the CSV file: \(error.localizedDescription)")
+            }
         }
     }
 }
@@ -154,4 +178,3 @@ struct ReceiptScannerContainerView: View {
         }
     }
 }
-
