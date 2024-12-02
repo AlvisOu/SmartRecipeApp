@@ -1,8 +1,8 @@
 //
-//  ReciptScannerView.swift
+//  ReceiptScannerView.swift
 //  Heron_RecipeApp
 //
-//  Created by  dam2274 on 11/25/24.
+//  Created by Luci Feinberg on 11/18/24.
 //
 
 import SwiftUI
@@ -12,22 +12,17 @@ import Vision
 // Things we need to figure out
 // 1. How can we test on our device?
 // 2. Should we make API calls to spoonacular?
-//    --
 // 3. Integrate with the other parts of the app
 // 4. Add image picker?
 
 struct ReceiptScannerView: UIViewControllerRepresentable {
-    @Binding var receiptIngredients: [String]
-    @State private var knownIngredients: Set<String> = [] // Ingredients fetched from the API
-    @Environment(\.presentationMode) var presentationMode // For navigation control
-    
-    private var apiKey: String = "6b836ec6cb864ff692260ac1fc585a93"
-    
-    // Add an explicit initializer
-    public init(receiptIngredients: Binding<[String]>) {
-        _receiptIngredients = receiptIngredients
+    @Binding var detectedIngredients: [String] // Bind to detected ingredients
+    @Environment(\.presentationMode) var presentationMode // For dismissing the scanner
+
+    public init(detectedIngredients: Binding<[String]>) {
+        _detectedIngredients = detectedIngredients
     }
-    
+
     func makeUIViewController(context: Context) -> VNDocumentCameraViewController {
         let scanner = VNDocumentCameraViewController()
         scanner.delegate = context.coordinator
@@ -37,71 +32,49 @@ struct ReceiptScannerView: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: VNDocumentCameraViewController, context: Context) {}
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(receiptIngredients: $receiptIngredients, fetchIngredients: fetchIngredientList, presentationMode: presentationMode)
-    }
-
-    // Fetch ingredient list from the API
-    func fetchIngredientList(completion: @escaping (Set<String>) -> Void) {
-        let url = URL(string: "https://api.spoonacular.com/food/ingredients?apiKey=\(apiKey)")!
-        
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data, error == nil else {
-                print("Error fetching ingredients: \(error?.localizedDescription ?? "Unknown error")")
-                completion([])
-                return
-            }
-
-            do {
-                let ingredients = try JSONDecoder().decode([String].self, from: data)
-                completion(Set(ingredients.map { $0.lowercased() }))
-            } catch {
-                print("Error parsing ingredients: \(error.localizedDescription)")
-                completion([])
-            }
-        }
-        task.resume()
+        Coordinator(detectedIngredients: $detectedIngredients, presentationMode: presentationMode)
     }
 
     class Coordinator: NSObject, VNDocumentCameraViewControllerDelegate {
-        @Binding var receiptIngredients: [String]
-        private var fetchIngredients: (@escaping (Set<String>) -> Void) -> Void
-        private var knownIngredients: Set<String> = []
+        @Binding var detectedIngredients: [String]
         private var presentationMode: Binding<PresentationMode>
+        private let ingredients = ["potato", "beet", "carrot", "chicken", "beef", "sugar", "egg", "cooking oil"] // Predefined list
+        
+        //Add initalize ingredients list here!!
 
-        init(receiptIngredients: Binding<[String]>, fetchIngredients: @escaping (@escaping (Set<String>) -> Void) -> Void, presentationMode: Binding<PresentationMode>) {
-            _receiptIngredients = receiptIngredients
-            self.fetchIngredients = fetchIngredients
+        init(detectedIngredients: Binding<[String]>, presentationMode: Binding<PresentationMode>) {
+            _detectedIngredients = detectedIngredients
             self.presentationMode = presentationMode
         }
 
         func documentCameraViewController(_ controller: VNDocumentCameraViewController, didFinishWith scan: VNDocumentCameraScan) {
-            fetchIngredients { [weak self] ingredients in
-                self?.knownIngredients = ingredients
-
-                for pageIndex in 0..<scan.pageCount {
-                    let image = scan.imageOfPage(at: pageIndex)
-                    self?.recognizeText(from: image)
-                }
-
-                // Automatically stop scanning after processing the receipt
-                self?.presentationMode.wrappedValue.dismiss()
+            for pageIndex in 0..<scan.pageCount {
+                let image = scan.imageOfPage(at: pageIndex)
+                recognizeText(from: image)
             }
+
+            // Dismiss scanner after processing
+            presentationMode.wrappedValue.dismiss()
         }
 
         private func recognizeText(from image: UIImage) {
             guard let cgImage = image.cgImage else { return }
 
             let request = VNRecognizeTextRequest { [weak self] (request, error) in
-                guard let observations = request.results as? [VNRecognizedTextObservation] else { return }
+                guard let observations = request.results as? [VNRecognizedTextObservation] else {
+                    print("No text found")
+                    return
+                }
 
-                let recognizedStrings = observations.compactMap { $0.topCandidates(1).first?.string }
+                // Extract detected words and filter against the ingredients list
+                let recognizedStrings = observations.compactMap { $0.topCandidates(1).first?.string.lowercased() }
+                let matchingIngredients = recognizedStrings.filter { self?.ingredients.contains($0) ?? false }
 
-                let filteredIngredients = recognizedStrings
-                    .map { $0.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) }
-                    .filter { self?.knownIngredients.contains($0) ?? false }
+                // Log matching ingredients for debugging
+                print("Matching ingredients: \(matchingIngredients)")
 
                 DispatchQueue.main.async {
-                    self?.receiptIngredients.append(contentsOf: Set(filteredIngredients))
+                    self?.detectedIngredients = matchingIngredients
                 }
             }
 
@@ -112,30 +85,73 @@ struct ReceiptScannerView: UIViewControllerRepresentable {
 }
 
 struct ReceiptScannerContainerView: View {
-    @State private var receiptIngredients: [String] = []
-    @State private var navigateToIngredients = false
+    @State private var detectedIngredients: [String] = [] // Detected ingredients
+    @State private var navigateToIngredients = false // Trigger navigation to IngredientsView
+    @State private var isScannerPresented = false // Scanner initially closed
 
     var body: some View {
-        NavigationView {
-            VStack {
-                NavigationLink(destination: IngredientsView(ingredients: receiptIngredients), isActive: $navigateToIngredients) {
-                    EmptyView()
+        VStack {
+            // Show detected ingredients for review
+            if !detectedIngredients.isEmpty {
+                List(detectedIngredients, id: \.self) { ingredient in
+                    Text(ingredient.capitalized)
                 }
+            } else {
+                Text("Scan a receipt to detect ingredients.")
+                    .foregroundColor(.gray)
+                    .padding()
+            }
 
+            HStack {
+                // Button to navigate to IngredientsView
                 Button(action: {
                     navigateToIngredients = true
                 }) {
-                    Text("Stop Scanning and Continue")
+                    Text("View Ingredients")
                         .font(.title2)
                         .padding()
-                        .background(Color.red)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.green)
                         .foregroundColor(.white)
                         .cornerRadius(10)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 10)
+                }
+                .disabled(detectedIngredients.isEmpty) // Disable button if no ingredients are detected
+
+                // Launch Scanner Again
+                Button(action: {
+                    isScannerPresented = true // Relaunch scanner
+                }) {
+                    Text("Scan Again")
+                        .font(.title2)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 10)
                 }
             }
-            .sheet(isPresented: .constant(true)) {
-                ReceiptScannerView(receiptIngredients: $receiptIngredients)
+        }
+        .navigationTitle("Scan Receipt")
+        // Attach the navigation link to the VStack's background
+        .background(
+            NavigationLink(
+                destination: IngredientsView(ingredients: detectedIngredients),
+                isActive: $navigateToIngredients
+            ) {
+                EmptyView()
             }
+        )
+        // Automatically show scanner on view load
+        .onAppear {
+            isScannerPresented = true
+        }
+        .sheet(isPresented: $isScannerPresented) {
+            ReceiptScannerView(detectedIngredients: $detectedIngredients)
         }
     }
 }
+
