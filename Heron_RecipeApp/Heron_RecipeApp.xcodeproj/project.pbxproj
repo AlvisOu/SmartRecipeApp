@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		53370CE82CF7A6140078F0A6 /* Pluralize in Frameworks */ = {isa = PBXBuildFile; productRef = 53370CE72CF7A6140078F0A6 /* Pluralize */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		7142CFEF2CDDCDF100DFF4B3 /* Heron_RecipeApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Heron_RecipeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				53370CE82CF7A6140078F0A6 /* Pluralize in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = Heron_RecipeApp;
 			packageProductDependencies = (
+				53370CE72CF7A6140078F0A6 /* Pluralize */,
 			);
 			productName = Heron_RecipeApp;
 			productReference = 7142CFEF2CDDCDF100DFF4B3 /* Heron_RecipeApp.app */;
@@ -94,6 +100,9 @@
 			);
 			mainGroup = 7142CFE62CDDCDF100DFF4B3;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				53370CE62CF7A6140078F0A6 /* XCRemoteSwiftPackageReference "pluralize" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7142CFF02CDDCDF100DFF4B3 /* Products */;
 			projectDirPath = "";
@@ -252,10 +261,17 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Heron_RecipeApp/Preview Content\"";
+<<<<<<< HEAD
 				DEVELOPMENT_TEAM = K6R2QN2TK2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Required for Scanning";
+=======
+				DEVELOPMENT_TEAM = 2CHU22822N;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "needed for scanning";
+>>>>>>> dev
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -266,7 +282,11 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+<<<<<<< HEAD
 				PRODUCT_BUNDLE_IDENTIFIER = "coms4995.Heron-RecipeApp-test";
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = "com.coms4995.Heron-RecipeApp-1";
+>>>>>>> dev
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -282,10 +302,17 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Heron_RecipeApp/Preview Content\"";
+<<<<<<< HEAD
 				DEVELOPMENT_TEAM = K6R2QN2TK2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Required for Scanning";
+=======
+				DEVELOPMENT_TEAM = 2CHU22822N;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "needed for scanning";
+>>>>>>> dev
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -296,7 +323,11 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+<<<<<<< HEAD
 				PRODUCT_BUNDLE_IDENTIFIER = "coms4995.Heron-RecipeApp-test";
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = "com.coms4995.Heron-RecipeApp-1";
+>>>>>>> dev
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -326,6 +357,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		53370CE62CF7A6140078F0A6 /* XCRemoteSwiftPackageReference "pluralize" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/alchemy-swift/pluralize";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		53370CE72CF7A6140078F0A6 /* Pluralize */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 53370CE62CF7A6140078F0A6 /* XCRemoteSwiftPackageReference "pluralize" */;
+			productName = Pluralize;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 7142CFE72CDDCDF100DFF4B3 /* Project object */;
 }

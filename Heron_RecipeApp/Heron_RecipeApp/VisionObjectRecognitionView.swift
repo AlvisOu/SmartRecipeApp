@@ -9,6 +9,23 @@ import SwiftUI
 import Foundation
 struct VisionObjectRecognitionView: UIViewControllerRepresentable {
     @Binding var detectedFoods: [String]
+    var onReset: () -> Void
+    var onViewControllerCreated: (VisionObjectRecognitionViewController) -> Void
+    
+    class Coordinator: NSObject, ObservableObject {
+        @Published var detectedFoods: [String] = [] {
+            didSet {
+                print("Coordinator detectedFoods updated: \(detectedFoods)")
+            }
+        }
+        override init() {
+            super.init()
+        }
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
     
     var onReset: () -> Void
     
@@ -36,6 +53,10 @@ struct VisionObjectRecognitionView: UIViewControllerRepresentable {
                 print("VisionObjectRecognitionView detectedFoods updated: \(foods)")
             }
         }
+        
+        DispatchQueue.main.async {
+                self.onViewControllerCreated(viewController)
+            }
 
         return viewController
     }
@@ -43,4 +64,11 @@ struct VisionObjectRecognitionView: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: VisionObjectRecognitionViewController, context: Context) {
     }
     
+    static func stopSession(viewController: VisionObjectRecognitionViewController) {
+        viewController.stopSession()
+    }
+        
+    static func resumeSession(viewController: VisionObjectRecognitionViewController) {
+        viewController.resumeSession()
+    }
 }

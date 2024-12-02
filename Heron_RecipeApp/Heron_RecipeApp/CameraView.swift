@@ -10,54 +10,57 @@ import SwiftUI
 struct CameraView: View {
     // State variable to trigger navigation
     @State private var navigateToIngredients = false
-//    @State private var detectedFoods: [String] = []
-    @State private var detectedFoods: [String] = ["tomato", "onion", "carrot"] //Luci added
-
+    @State private var detectedFoods: [String] = []
+    @State private var cameraViewController: VisionObjectRecognitionViewController?
     
     var body: some View {
         VStack {
-            Text("Camera View")
-                .font(.largeTitle)
+            // Display the camera feed
+            VisionObjectRecognitionView(
+                detectedFoods: $detectedFoods,
+                onReset: {
+                detectedFoods = []},
+                onViewControllerCreated: { viewController in
+                    cameraViewController = viewController
+                })
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             
-            Spacer()
+            Text("Ingredients Detected: \(detectedFoods.count)")
+                .font(.headline)
+                .padding()
             
-//            // Display the camera feed
-//            VisionObjectRecognitionView(detectedFoods: $detectedFoods, onReset: {
-//                detectedFoods = []}).frame(maxWidth: .infinity, maxHeight: .infinity) //Luci added
-            
-            HStack{
-                Button(action: {
-                    navigateToIngredients = true
-                }) {
-                    Text("Stop scanning")
-                        .font(.title)
-                        .padding()
-                        .background(Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
-                
-                Button(action: {
-                    detectedFoods = []
-                }) {
-                    Text("Reset ingredients")
-                        .font(.title)
-                        .padding()
-                        .background(Color.red)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
+            Button(action: {
+                navigateToIngredients = true
+            }) {
+                Text("Stop scanning")
+                    .font(.title)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
             }
 
             Spacer()
         }
-        .navigationTitle("Camera")
         // Navigation link tied to the state variable
         .background(
             NavigationLink(destination: IngredientsView(ingredients: detectedFoods), isActive: $navigateToIngredients) {
                 EmptyView()
             }
         )
+        
+        .onDisappear {
+            if let viewController = cameraViewController {
+                VisionObjectRecognitionView.stopSession(viewController: viewController)
+            }
+        }
+        .onAppear {
+            detectedFoods = []
+            if let viewController = cameraViewController {
+                VisionObjectRecognitionView.resumeSession(viewController: viewController)
+            }
+        }
+        
     }
 }
 

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Pluralize
 
 struct IngredientsView: View {
     @State var ingredients: [String]
@@ -13,57 +14,57 @@ struct IngredientsView: View {
     @State private var showingEditView = false
     
     var body: some View {
-        NavigationStack {
-            VStack {
-                HStack {
-                    // MARK: Add Ingredient Button
-                    Button(action: {
-                        showingAddView = true
-                    }) {
-                        Label("Add Ingredient", systemImage: "plus.circle.fill")
-                            .foregroundColor(.blue)
-                    }
-                    
-                    Spacer()
-                    
-                    // MARK: Edit Button
-                    Button(action: {
-                        showingEditView = true
-                    }) {
-                        Text("Edit")
-                            .foregroundColor(.blue)
-                    }
+        
+        VStack {
+            HStack {
+                // MARK: Add Ingredient Button
+                Button(action: {
+                    showingAddView = true
+                }) {
+                    Label("Add Ingredient", systemImage: "plus.circle.fill")
+                        .foregroundColor(.blue)
                 }
-                .padding([.horizontal, .top])
                 
-                // MARK: Header
-                Text("Ingredients")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
-                    .padding(.top,3)
+                Spacer()
                 
-                // MARK: List of Ingredients
-                List {
-                    ForEach(ingredients, id: \.self){ ingredient in Text(ingredient)}
+                // MARK: Edit Button
+                Button(action: {
+                    showingEditView = true
+                }) {
+                    Text("Edit")
+                        .foregroundColor(.blue)
                 }
             }
+            .padding([.horizontal, .top])
             
-            // MARK: Generate Recipe Button
-            NavigationLink(destination: GenerateRecipeView(ingredients: ingredients)) {
-                Text("Generate Recipe")
-                    .font(.system(size: 20))
-                    .foregroundColor(.blue)
-                    .frame(width: 250)
-                    .padding()
-                    .background(Color(.systemGray5))
-                    .cornerRadius(20)
-                    .padding(.top, 10)
-                    .padding(.bottom, 1)
-                
+            // MARK: Header
+            Text("Ingredients")
+                .font(.title)
+                .fontWeight(.bold)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal)
+                .padding(.top,3)
+            
+            // MARK: List of Ingredients
+            List {
+                ForEach(ingredients, id: \.self){ ingredient in Text(ingredient)}
             }
         }
+        
+        // MARK: Generate Recipe Button
+        NavigationLink(destination: GenerateRecipeView(ingredients: ingredients)) {
+            Text("Generate Recipe")
+                .font(.system(size: 20))
+                .foregroundColor(.blue)
+                .frame(width: 250)
+                .padding()
+                .background(Color(.systemGray5))
+                .cornerRadius(20)
+                .padding(.top, 10)
+                .padding(.bottom, 1)
+            
+        }
+        
         
         // Navigate to Add Ingredient Sheet
         .sheet(isPresented: $showingAddView) {
@@ -82,6 +83,7 @@ struct AddNewIngredientView: View {
     @Binding var ingredients: [String]
     @State private var newIngredient: String = ""
     @Environment(\.dismiss) private var dismiss
+    @State private var showDuplicateAlert = false
     
     var body: some View {
         VStack {
@@ -93,10 +95,7 @@ struct AddNewIngredientView: View {
                 TextField("Enter ingredient", text: $newIngredient)
                 
                 Button(action: {
-                    if !newIngredient.isEmpty {
-                        ingredients.append(newIngredient)
-                        dismiss()
-                    }
+                    addIngredient()
                 }) {
                     HStack {
                         Image(systemName: "plus.circle.fill")
@@ -106,6 +105,26 @@ struct AddNewIngredientView: View {
             }
             Text("Swipe down to cancel.")
                 .padding(.top)
+        }
+        .alert(isPresented: $showDuplicateAlert) {
+            Alert(
+                title: Text("Duplicate Ingredient"),
+                message: Text("This ingredient is already in the list."),
+                dismissButton: .default(Text("OK"))
+            )
+        }
+    }
+    
+    private func addIngredient() {
+        let normalizedIngredient = newIngredient.singularized.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if !normalizedIngredient.isEmpty {
+            if !ingredients.contains(where: { $0.lowercased() == normalizedIngredient }) {
+                ingredients.append(normalizedIngredient)
+                dismiss()
+            } else {
+                showDuplicateAlert = true
+            }
         }
     }
 }
