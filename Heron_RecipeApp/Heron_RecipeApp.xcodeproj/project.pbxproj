@@ -11,7 +11,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		7142CFEF2CDDCDF100DFF4B3 /* Heron_RecipeApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Heron_RecipeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7142CFEF2CDDCDF100DFF4B3 /* SavorScan.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SavorScan.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -45,7 +45,7 @@
 		7142CFF02CDDCDF100DFF4B3 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				7142CFEF2CDDCDF100DFF4B3 /* Heron_RecipeApp.app */,
+				7142CFEF2CDDCDF100DFF4B3 /* SavorScan.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -73,7 +73,7 @@
 				53370CE72CF7A6140078F0A6 /* Pluralize */,
 			);
 			productName = Heron_RecipeApp;
-			productReference = 7142CFEF2CDDCDF100DFF4B3 /* Heron_RecipeApp.app */;
+			productReference = 7142CFEF2CDDCDF100DFF4B3 /* SavorScan.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -276,7 +276,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.coms4995.SavorScan;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = SavorScan;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -306,7 +306,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.coms4995.SavorScan;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = SavorScan;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
